@@ -58,7 +58,7 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.check_changes.outputs.changed == 'true'
-        uses: actions/create-release@v1
+        uses: actions/create-release@v2
         with:
           tag_name: v${{ github.run_number }}
           release_name: Release v${{ github.run_number }}
