@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
 
     steps:
       - name: Checkout code
@@ -43,17 +42,23 @@ jobs:
         if: env.CHANGED == 'true'
         run: |
           python train_model.py
-          echo "MODEL_PATH=$(ls linear_model.*)" >> $GITHUB_ENV
+          echo "MODEL_FILE=linear_model.pkl" >> $GITHUB_ENV
+          echo "COEFF_FILE=linear_model.txt" >> $GITHUB_ENV
 
-      - name: Create release branch
+      - name: Prepare release
         if: env.CHANGED == 'true'
         run: |
+          # Configure git
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
+          
+          # Create release branch with only model files
           git checkout --orphan temp-release
           git rm -rf .
-          git add ${{ env.MODEL_PATH }}
+          git add ${{ env.MODEL_FILE }} ${{ env.CEFF_FILE }}
           git commit -m "Trained model $(date +'%Y-%m-%d')"
+          
+          # Force update release branch
           git branch -D release || true
           git branch -m release
           git push -f origin release
@@ -67,4 +72,6 @@ jobs:
           body: "Automated model release"
           draft: false
           prerelease: false
-          files: ${{ env.MODEL_PATH }}
+          files: |
+            ${{ env.MODEL_FILE }}
+            ${{ env.COEFF_FILE }}
