@@ -50,8 +50,11 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git checkout release
-          git merge main
+          # Clean untracked files
+          git clean -fd
+          # Switch to release branch (create if needed)
+          git checkout release || git checkout -b release
+          git merge main --no-edit
           git add linear_model.txt
           git commit -m "Update linear model"
           git push origin release
