@@ -54,10 +54,15 @@ jobs:
           git clean -fd
           # Switch to release branch (create if needed)
           git checkout release || git checkout -b release
-          git merge main --no-edit
-          git add linear_model.txt
-          git commit -m "Update linear model"
-          git push origin release
+          git merge main --strategy-option theirs --no-edit
+          # Only proceed if there are changes to linear_model.txt
+          if git diff --quiet --exit-code; then
+            echo "No changes to commit"
+          else
+            git add linear_model.txt
+            git commit -m "Update linear model"
+            git push origin release
+          fi
 
       - name: Create GitHub Release
         if: steps.check_changes.outputs.changed == 'true'
